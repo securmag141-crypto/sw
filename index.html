@@ -30,19 +30,28 @@
             <p>Роль: {{ userRole }}</p>
             <button @click="signOut">Выйти</button>
             <hr>
-            <!-- Показываем интерфейс в зависимости от роли -->
-            <div v-if="userRole === 'admin'">
-                <h3>Панель администратора</h3>
-                <input v-model="newData" placeholder="Новая запись">
-                <button @click="addData">Добавить</button>
-            </div>
-            <div v-else>
-                <h3>Просмотр данных (Охранник)</h3>
-            </div>
-            <ul>
-                <li v-for="item in dataList" :key="item.id">{{ item.text }}</li>
-            </ul>
-        </div>
+    <div v-if="userRole === 'admin'">
+    <h3>Старший смены (админ)</h3>
+    <input v-model="newData" placeholder="Новая запись">
+    <button @click="addData">Добавить</button>
+    <hr>
+    <h4>Все записи:</h4>
+    <ul>
+        <li v-for="item in dataList" :key="item.id">
+            {{ item.text }}
+            <button @click="deleteData(item.id)">Удалить</button>
+        </li>
+    </ul>
+</div>
+
+<div v-else>
+    <h3>Охранник (только просмотр)</h3>
+    <ul>
+        <li v-for="item in dataList" :key="item.id">
+            {{ item.text }}
+        </li>
+    </ul>
+</div>
     </div>
 
     <script src="app.js"></script>
