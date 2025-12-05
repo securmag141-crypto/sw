@@ -10,7 +10,6 @@ const firebaseConfig = {
     appId: "1:557013608102:web:78e9f214d8bea34728b667"
 };
 
-// Инициализация Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -28,7 +27,6 @@ createApp({
         }
     },
     mounted() {
-        // Следим за изменением состояния авторизации
         auth.onAuthStateChanged(user => {
             this.user = user;
             if (user) {
@@ -50,16 +48,14 @@ createApp({
             await auth.signOut();
         },
         async loadUserRole(uid) {
-            // Получаем роль из Firestore (коллекция users)
             const doc = await db.collection('users').doc(uid).get();
             if (doc.exists) {
                 this.userRole = doc.data().role || 'guard';
             } else {
-                this.userRole = 'guard'; // По умолчанию
+                this.userRole = 'guard';
             }
         },
         async loadData() {
-            // Загружаем данные из Firestore
             const snapshot = await db.collection('posts').orderBy('createdAt').get();
             this.dataList = snapshot.docs.map(doc => ({
                 id: doc.id,
@@ -67,17 +63,29 @@ createApp({
             }));
         },
         async addData() {
-            if (!this.newData.trim()) return;
-            // Добавляем запись (доступно только admin)
-            if (this.userRole === 'admin') {
-                await db.collection('posts').add({
-                    text: this.newData,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    author: this.user.email
-                });
-                this.newData = '';
-                this.loadData();
+            if (this.userRole !== 'admin') {
+                alert('Только старший смены может добавлять данные');
+                return;
             }
+            
+            if (!this.newData.trim()) return;
+            
+            await db.collection('posts').add({
+                text: this.newData,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                author: this.user.email
+            });
+            
+            this.newData = '';
+            this.loadData();
+        },
+        async deleteData(postId) {
+            if (this.userRole !== 'admin') return;
+            
+            if (!confirm('Удалить запись?')) return;
+            
+            await db.collection('posts').doc(postId).delete();
+            this.loadData();
         }
     }
 }).mount('#app');
