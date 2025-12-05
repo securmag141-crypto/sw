@@ -31,6 +31,16 @@ createApp({
             this.user = user;
             if (user) {
                 this.loadUserRole(user.uid);
+                async loadUserRole(uid) {
+    const doc = await db.collection('users').doc(uid).get();
+    console.log("Документ роли:", doc.data()); // ← добавить эту строку
+    if (doc.exists) {
+        this.userRole = doc.data().role || 'guard';
+    } else {
+        this.userRole = 'guard';
+    }
+    console.log("Установлена роль:", this.userRole); // ← и эту
+},
                 this.loadData();
             }
         });
