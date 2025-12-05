@@ -17,21 +17,24 @@ const db = firebase.firestore();
 createApp({
     data() {
         return {
-            login: '',
-            password: '',
+            login: 'admin@test.com',
+            password: '123456',
             error: '',
             user: null,
-            userRole: 'guard',
+            userRole: '',
             newData: '',
             dataList: []
         }
     },
     mounted() {
         auth.onAuthStateChanged(user => {
+            console.log('Пользователь:', user?.email);
             this.user = user;
             if (user) {
                 this.loadUserRole(user.uid);
                 this.loadData();
+            } else {
+                this.userRole = '';
             }
         });
     },
@@ -39,29 +42,39 @@ createApp({
         async signIn() {
             try {
                 await auth.signInWithEmailAndPassword(this.login, this.password);
-                this.error = '';
             } catch (err) {
-                this.error = 'Ошибка: ' + err.message;
+                this.error = err.message;
             }
         },
         async signOut() {
             await auth.signOut();
         },
         async loadUserRole(uid) {
-            const doc = await db.collection('users').doc(uid).get();
-            this.userRole = doc.exists ? doc.data().role : 'guard';
-            console.log("Роль пользователя:", this.userRole);
+            console.log('Загружаю роль для UID:', uid);
+            try {
+                const doc = await db.collection('users').doc(uid).get();
+                console.log('Документ роли:', doc.data());
+                this.userRole = doc.exists ? doc.data().role : 'guard';
+                console.log('Установлена роль:', this.userRole);
+            } catch (err) {
+                console.error('Ошибка загрузки роли:', err);
+                this.userRole = 'guard';
+            }
         },
         async loadData() {
-            const snapshot = await db.collection('posts').orderBy('createdAt').get();
-            this.dataList = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            try {
+                const snapshot = await db.collection('posts').orderBy('createdAt').get();
+                this.dataList = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+            } catch (err) {
+                console.error('Ошибка загрузки данных:', err);
+            }
         },
         async addData() {
             if (this.userRole !== 'admin') {
-                alert('Только старший смены может добавлять');
+                alert('Только старший смены может добавлять данные');
                 return;
             }
             if (!this.newData.trim()) return;
@@ -83,4 +96,3 @@ createApp({
         }
     }
 }).mount('#app');
-     
