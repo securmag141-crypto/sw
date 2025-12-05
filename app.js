@@ -1,13 +1,24 @@
 const { createApp } = Vue;
 
-// Конфиг Firebase (замени на свой из консоли firebase.google.com)
-const firebaseConfig = {
-    apiKey: "AIzaSyBtjMpioD3Mw3Fgvn833K0q1fr8mCZ-70k",
-    authDomain: "swws-cd91c.firebaseapp.com",
-    projectId: "swws-cd91c",
-    storageBucket: "swws-cd91c.firebasestorage.app",
-    messagingSenderId: "557013608102",
-    appId: "1:557013608102:web:78e9f214d8bea34728b667"
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCzlKQEyvyotCMLrVMYwMED9y3DjZUWr7c",
+    authDomain: "guard-app-new.firebaseapp.com",
+    projectId: "guard-app-new",
+    storageBucket: "guard-app-new.firebasestorage.app",
+    messagingSenderId: "145470948800",
+    appId: "1:145470948800:web:51d7452b232471cf7bb425"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
 };
 
 firebase.initializeApp(firebaseConfig);
