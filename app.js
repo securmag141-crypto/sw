@@ -31,16 +31,6 @@ createApp({
             this.user = user;
             if (user) {
                 this.loadUserRole(user.uid);
-                async loadUserRole(uid) {
-    const doc = await db.collection('users').doc(uid).get();
-    console.log("Документ роли:", doc.data()); // ← добавить эту строку
-    if (doc.exists) {
-        this.userRole = doc.data().role || 'guard';
-    } else {
-        this.userRole = 'guard';
-    }
-    console.log("Установлена роль:", this.userRole); // ← и эту
-},
                 this.loadData();
             }
         });
@@ -59,11 +49,8 @@ createApp({
         },
         async loadUserRole(uid) {
             const doc = await db.collection('users').doc(uid).get();
-            if (doc.exists) {
-                this.userRole = doc.data().role || 'guard';
-            } else {
-                this.userRole = 'guard';
-            }
+            this.userRole = doc.exists ? doc.data().role : 'guard';
+            console.log("Роль пользователя:", this.userRole);
         },
         async loadData() {
             const snapshot = await db.collection('posts').orderBy('createdAt').get();
@@ -74,10 +61,9 @@ createApp({
         },
         async addData() {
             if (this.userRole !== 'admin') {
-                alert('Только старший смены может добавлять данные');
+                alert('Только старший смены может добавлять');
                 return;
             }
-            
             if (!this.newData.trim()) return;
             
             await db.collection('posts').add({
@@ -85,17 +71,16 @@ createApp({
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 author: this.user.email
             });
-            
             this.newData = '';
             this.loadData();
         },
         async deleteData(postId) {
             if (this.userRole !== 'admin') return;
-            
-            if (!confirm('Удалить запись?')) return;
+            if (!confirm('Удалить?')) return;
             
             await db.collection('posts').doc(postId).delete();
             this.loadData();
         }
     }
 }).mount('#app');
+     
